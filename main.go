@@ -12,8 +12,13 @@ import (
 
 func main() {
 	port := flag.String("port", "8080", "Port pour mon serveur")
-	target := flag.String("target", "http://localhost:8081", "L'adresse de mon adversaire")
 	flag.Parse()
+
+	targets := flag.Args()
+
+	if len(targets) == 0 {
+		targets = append(targets, "http://localhost:8081")
+	}
 
 	board := game.NewBoard()
 	board.InitRandomShips()
@@ -28,6 +33,6 @@ func main() {
 
 	cl := client.NewClient()
 
-	consoleUI := ui.NewConsoleUI(board, cl, *target)
+	consoleUI := ui.NewConsoleUI(board, cl, targets)
 	consoleUI.Run()
 }

@@ -21,7 +21,7 @@ func (c *Client) Fire(url string, x, y int) (string, error) {
 	payload := map[string]int{"x": x, "y": y}
 	jsonData, _ := json.Marshal(payload)
 
-	resp, err := c.HttpClient.Post(url+"/fire", "application/json", bytes.NewBuffer(jsonData))
+	resp, err := c.HttpClient.Post(url+"/hit", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return "", err
 	}

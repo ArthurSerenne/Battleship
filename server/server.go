@@ -16,7 +16,9 @@ func NewBattleshipServer(b *game.Board) *BattleshipServer {
 }
 
 func (s *BattleshipServer) Start(port string) error {
-	http.HandleFunc("/fire", s.handleFire)
+	http.HandleFunc("/hit", s.handleHit)
+	http.HandleFunc("/boats", s.handleBoats)
+	http.HandleFunc("/board", s.handleBoard)
 
 	fmt.Printf("Serveur démarré sur le port %s...\n", port)
 	return http.ListenAndServe(":"+port, nil)
@@ -31,9 +33,14 @@ type FireResponse struct {
 	Result string `json:"result"`
 }
 
-func (s *BattleshipServer) handleFire(w http.ResponseWriter, r *http.Request) {
+func (s *BattleshipServer) handleHit(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Méthode non autorisée", http.StatusMethodNotAllowed)
+		return
+	}
+
+	if s.Board.CountShipsAlive() == 0 {
+		http.Error(w, "Le joueur a déjà perdu", http.StatusForbidden)
 		return
 	}
 
@@ -48,4 +55,25 @@ func (s *BattleshipServer) handleFire(w http.ResponseWriter, r *http.Request) {
 	resp := FireResponse{Result: result}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
+}
+
+func (s *BattleshipServer) handleBoats(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Méthode non autorisée", http.StatusMethodNotAllowed)
+		return
+	}
+
+	count := s.Board.CountShipsAlive()
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]int{"boats_alive": count})
+}
+
+func (s *BattleshipServer) handleBoard(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Méthode non autorisée", http.StatusMethodNotAllowed)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(s.Board)
 }

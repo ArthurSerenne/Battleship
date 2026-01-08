@@ -51,6 +51,7 @@ func (b *Board) canPlace(x, y, size int, horizontal bool) bool {
 }
 
 func (b *Board) place(x, y, size int, horizontal bool) {
+	newShip := &Ship{Coords: []Coordinate{}}
 	for i := 0; i < size; i++ {
 		cx, cy := x, y
 		if horizontal {
@@ -59,7 +60,28 @@ func (b *Board) place(x, y, size int, horizontal bool) {
 			cy += i
 		}
 		b.Grid[cy][cx] = CellShip
+		newShip.Coords = append(newShip.Coords, Coordinate{X: cx, Y: cy})
 	}
+	b.Ships = append(b.Ships, newShip)
+}
+
+func (s *Ship) IsAlive(grid [Size][Size]int) bool {
+	for _, c := range s.Coords {
+		if grid[c.Y][c.X] != CellHit {
+			return true
+		}
+	}
+	return false
+}
+
+func (b *Board) CountShipsAlive() int {
+	count := 0
+	for _, s := range b.Ships {
+		if s.IsAlive(b.Grid) {
+			count++
+		}
+	}
+	return count
 }
 
 func (b *Board) ReceiveHit(x, y int) string {

@@ -14,6 +14,11 @@ type Coordinate struct {
 	Y int `json:"y"`
 }
 
+type Ship struct {
+	Coords []Coordinate
+}
+
 type Board struct {
-	Grid [Size][Size]int `json:"grid"`
+	Grid  [Size][Size]int `json:"grid"`
+	Ships []*Ship
 }
